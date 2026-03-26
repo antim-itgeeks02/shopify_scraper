@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AppLens — Shopify Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@300;400;500&display=swap');
+</style>
+<style>
+:root{
+  --bg:#06060a;--bg2:#0d0d14;--bg3:#141420;--surface:#111119;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --text:#f0f0f8;--text2:#a0a0b8;--muted:#52526a;
+  --a1:#c8b8ff;--a2:#ff8fab;--a3:#72f5c0;--a4:#ffd97d;
+  --glow1:rgba(200,184,255,0.15);--r:14px;--r2:22px;
+}
+[data-theme="light"]{
+  --bg:#f7f7fc;--bg2:#ffffff;--bg3:#ededf5;--surface:#ffffff;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.14);
+  --text:#12121e;--text2:#5a5a78;--muted:#9898b0;
+  --a1:#7c5cfc;--a2:#e8547a;--a3:#16a87a;--a4:#d48c00;
+  --glow1:rgba(124,92,252,0.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .4s,color .4s}
+.mesh{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);animation:orbf 12s ease-in-out infinite}
+.o1{width:600px;height:600px;background:rgba(200,184,255,0.06);top:-200px;left:-100px}
+.o2{width:500px;height:500px;background:rgba(255,143,171,0.05);bottom:-150px;right:-100px;animation-delay:-4s}
+.o3{width:400px;height:400px;background:rgba(114,245,192,0.04);top:40%;left:40%;animation-delay:-8s}
+@keyframes orbf{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.05)}66%{transform:translate(-20px,30px) scale(.97)}}
+.mesh::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:.6}
+.shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh;position:relative;z-index:1}
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:32px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.logo-wrap{padding:0 28px 32px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.logo-wm{font-family:'Geist',sans-serif;font-size:26px;letter-spacing:-.5px;background:linear-gradient(135deg,var(--text),var(--a1));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:flex;align-items:center;gap:10px}
+.logo-gem{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--a1),var(--a2));display:flex;align-items:center;justify-content:center;font-size:18px;-webkit-text-fill-color:initial;animation:gp 3s ease-in-out infinite;flex-shrink:0}
+@keyframes gp{0%,100%{box-shadow:0 0 0 0 rgba(200,184,255,.3)}50%{box-shadow:0 0 0 8px rgba(200,184,255,0)}}
+.logo-sub{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.ng{padding:0 14px;margin-bottom:6px}
+.ng-lbl{font-family:'Geist Mono',monospace;font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:8px 14px 6px}
+.nb{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;font-family:'Geist',sans-serif;font-size:14px;font-weight:500;color:var(--text2);transition:all .2s;border:none;background:none;width:100%;text-align:left;position:relative;overflow:hidden}
+.nb::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,var(--glow1),transparent);opacity:0;transition:opacity .2s;border-radius:10px}
+.nb:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nb:hover::before{opacity:1}
+.nb.on{color:var(--text);background:linear-gradient(90deg,rgba(200,184,255,.1),rgba(255,143,171,.05));border:1px solid rgba(200,184,255,.15)}
+.nb.on::before{opacity:1}
+.ni{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:var(--bg3);transition:background .2s}
+.nb.on .ni{background:linear-gradient(135deg,rgba(200,184,255,.2),rgba(255,143,171,.15))}
+.npill{margin-left:auto;font-family:'Geist Mono',monospace;font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(200,184,255,.1);color:var(--a1)}
+.sb-bot{margin-top:auto;padding:20px 28px 0;border-top:1px solid var(--border)}
+.tbtn{display:flex;align-items:center;gap:10px;width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border2);background:none;font-family:'Geist',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;transition:all .2s}
+.tbtn:hover{color:var(--text);border-color:var(--a1);background:rgba(200,184,255,.05)}
+.ttrack{width:36px;height:20px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);position:relative;margin-left:auto;transition:background .3s;flex-shrink:0}
+.tthumb{width:14px;height:14px;border-radius:50%;background:var(--a1);position:absolute;top:2px;left:2px;transition:transform .3s}
+[data-theme="light"] .tthumb{transform:translateX(16px)}
+/* MAIN */
+.main{padding:44px 48px;overflow-y:auto;min-width:0}
+.page{display:none}
+.page.on{display:block;animation:pr .5s cubic-bezier(.22,1,.36,1)}
+@keyframes pr{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* PAGE HEADER */
+.ph{margin-bottom:40px}
+.pey{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--a1);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.pey::before{content:'';width:24px;height:1px;background:var(--a1);display:inline-block}
+.ptitle{font-family:'Geist',sans-serif;font-size:52px;line-height:1.05;letter-spacing:-2px;font-weight:800}
+.ptitle em{font-style:normal;font-weight:900;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ptitle em{font-style:italic;color:var(--a1)}
+.psub{font-size:15px;color:var(--text2);margin-top:10px;max-width:500px;line-height:1.6}
+/* STATS */
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:24px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s;animation:ci .6s cubic-bezier(.22,1,.36,1) both}
+.sc:nth-child(1){animation-delay:.05s}.sc:nth-child(2){animation-delay:.1s}.sc:nth-child(3){animation-delay:.15s}.sc:nth-child(4){animation-delay:.2s}
+@keyframes ci{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--a1),transparent);opacity:0;transition:opacity .3s}
+.sc:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,.3),0 0 0 1px rgba(200,184,255,.1)}
+.sc:hover::before{opacity:1}
+.sg{font-size:28px;margin-bottom:14px;display:inline-flex;animation:gf 4s ease-in-out infinite}
+.sc:nth-child(2) .sg{animation-delay:-.5s}.sc:nth-child(3) .sg{animation-delay:-1s}.sc:nth-child(4) .sg{animation-delay:-1.5s}
+@keyframes gf{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.slbl{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sval{font-family:'Geist',sans-serif;font-size:44px;letter-spacing:-2px;line-height:1;background:linear-gradient(135deg,var(--text) 40%,var(--text2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sdelta{font-size:12px;color:var(--a3);margin-top:6px;font-weight:500}
+/* CAT CARDS */
+.cgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:28px;cursor:pointer;transition:all .3s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;animation:ci .7s cubic-bezier(.22,1,.36,1) both}
+.cc:nth-child(1){animation-delay:.1s}.cc:nth-child(2){animation-delay:.18s}.cc:nth-child(3){animation-delay:.26s}.cc:nth-child(4){animation-delay:.34s}
+.cc::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(200,184,255,.06) 0%,transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
+.cc:hover::after{opacity:1}
+.cc:hover{border-color:rgba(200,184,255,.25);transform:translateY(-4px) scale(1.01);box-shadow:0 24px 64px rgba(0,0,0,.4),0 0 0 1px rgba(200,184,255,.1),inset 0 1px 0 rgba(255,255,255,.05)}
+.ctop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.cemoji{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;transition:transform .3s}
+.cc:hover .cemoji{transform:scale(1.1) rotate(-3deg)}
+.cbadge{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--muted);transition:all .2s}
+.cbadge.live{border-color:rgba(114,245,192,.4);color:var(--a3);background:rgba(114,245,192,.06)}
+.cbadge.live::before{content:'● ';font-size:7px;animation:bl 1.5s infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.cname{font-family:'Geist',sans-serif;font-size:22px;letter-spacing:-.5px;margin-bottom:6px}
+.cdesc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.cfoot{display:flex;align-items:center;justify-content:space-between}
+.ccount{font-family:'Geist',sans-serif;font-size:28px;letter-spacing:-1px}
+.cclbl{font-size:11px;color:var(--muted);margin-top:1px}
+.carrow{width:40px;height:40px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text2);transition:all .3s}
+.cc:hover .carrow{background:var(--a1);border-color:var(--a1);color:#06060a;transform:rotate(-45deg)}
+/* BROWSER */
+.tbar{display:flex;gap:12px;margin-bottom:28px;align-items:center;flex-wrap:wrap}
+.sw{flex:1;min-width:220px;position:relative}
+.sw input{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:12px 16px 12px 44px;font-family:'Geist',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
+.sw input::placeholder{color:var(--muted)}
+.sw input:focus{border-color:var(--a1);box-shadow:0 0 0 4px rgba(200,184,255,.08)}
+.si{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.sel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:12px 36px 12px 16px;font-family:'Geist',sans-serif;font-size:14px;color:var(--text);outline:none;cursor:pointer;transition:border-color .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2352526a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.sel:focus{border-color:var(--a1)}
+.agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.acard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:18px;cursor:pointer;transition:all .25s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;animation:ci .5s cubic-bezier(.22,1,.36,1) both}
+.acard:hover{border-color:rgba(200,184,255,.2);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3),0 0 0 1px rgba(200,184,255,.08)}
+.atop{display:flex;gap:13px;margin-bottom:12px;align-items:flex-start}
+.aimg{width:48px;height:48px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--bg3);transition:transform .2s}
+.acard:hover .aimg{transform:scale(1.05)}
+.aph{width:48px;height:48px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,var(--bg3),var(--bg2));display:flex;align-items:center;justify-content:center;font-size:22px}
+.aname{font-family:'Geist',sans-serif;font-size:14px;font-weight:700;line-height:1.3;margin-bottom:3px}
+.aby{font-size:12px;color:var(--muted)}
+.abot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.ast{display:flex;align-items:center;gap:5px;font-size:13px}
+.ast .s{color:var(--a4)}
+.arc{font-size:11px;color:var(--muted)}
+.atag{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:rgba(200,184,255,.08);color:var(--a1);border:1px solid rgba(200,184,255,.15)}
+/* SCRAPER */
+.scgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.scc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:26px;transition:border-color .3s;position:relative;overflow:hidden;animation:ci .5s cubic-bezier(.22,1,.36,1) both}
+.scc:nth-child(1){animation-delay:.05s}.scc:nth-child(2){animation-delay:.12s}.scc:nth-child(3){animation-delay:.19s}.scc:nth-child(4){animation-delay:.26s}
+.scc.running{border-color:rgba(200,184,255,.3);box-shadow:0 0 0 1px rgba(200,184,255,.1),0 0 32px rgba(200,184,255,.06)}
+.scc.done{border-color:rgba(114,245,192,.3)}
+.scc.err{border-color:rgba(255,100,100,.3)}
+.stop{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.sname{font-family:'Geist',sans-serif;font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--muted);transition:background .3s,box-shadow .3s;flex-shrink:0}
+.sdot.running{background:var(--a1);animation:dp 1s ease-in-out infinite}
+.sdot.done{background:var(--a3)}.sdot.err{background:#ff6464}
+@keyframes dp{0%,100%{box-shadow:0 0 0 0 rgba(200,184,255,.4)}50%{box-shadow:0 0 0 6px rgba(200,184,255,0)}}
+.slog{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);height:110px;overflow-y:auto;margin-bottom:16px;line-height:1.8}
+.slog .li{color:var(--a1)}.slog .ls{color:var(--a3)}.slog .le{color:#ff6464}
+.surl{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);background:var(--bg3);padding:6px 10px;border-radius:6px;letter-spacing:.5px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:10px;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .2s}
+.btn:hover::after{opacity:1}
+.bpri{background:linear-gradient(135deg,var(--a1),#a98cff);color:#06060a;box-shadow:0 4px 20px rgba(200,184,255,.3)}
+.bpri:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(200,184,255,.4)}
+.bsm{padding:8px 16px;font-size:13px}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none !important;box-shadow:none !important}
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:24px}
+.ov.open{display:flex;animation:ovin .2s ease}
+@keyframes ovin{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;animation:min .35s cubic-bezier(.22,1,.36,1)}
+@keyframes min{from{opacity:0;transform:scale(.93) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mhd{display:flex;gap:16px;padding:26px 26px 20px;border-bottom:1px solid var(--border);align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:1}
+.mimg{width:60px;height:60px;border-radius:14px;object-fit:cover;background:var(--bg3);flex-shrink:0}
+.mph{width:60px;height:60px;border-radius:14px;background:linear-gradient(135deg,var(--bg3),var(--bg));display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.mtitle{font-family:'Geist',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+.mby{font-size:13px;color:var(--muted);margin-bottom:8px}
+.mx{margin-left:auto;flex-shrink:0;width:34px;height:34px;border-radius:9px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.mx:hover{border-color:#ff6464;color:#ff6464}
+.mbd{padding:26px}
+.msec{margin-bottom:26px}
+.mslbl{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.mslbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.rhero{display:flex;align-items:center;gap:28px;margin-bottom:20px}
+.rnum{font-family:'Geist',sans-serif;font-size:64px;letter-spacing:-4px;line-height:1;background:linear-gradient(135deg,var(--a4),#ff9a3c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rsr{display:flex;gap:3px;margin-bottom:5px}
+.rsr .s{font-size:15px;color:var(--a4)}.rsr .s.off{color:var(--muted)}
+.rrev{font-size:12px;color:var(--muted)}
+.dlist{display:flex;flex-direction:column;gap:9px}
+.drow{display:grid;grid-template-columns:46px 1fr 52px;align-items:center;gap:12px}
+.dlbl{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);text-align:right}
+.dtrack{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.dfill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--a1),var(--a2));width:0;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.dct{font-family:'Geist Mono',monospace;font-size:11px;color:var(--text2)}
+.mdesc{font-size:14px;color:var(--text2);line-height:1.75}
+/* PAGINATION */
+.pnav{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px}
+.pbtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:none;font-family:'Geist Mono',monospace;font-size:13px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pbtn:hover{border-color:var(--a1);color:var(--a1)}.pbtn.cur{background:var(--a1);border-color:var(--a1);color:#06060a;font-weight:600}.pbtn:disabled{opacity:.25;cursor:not-allowed}
+.psep{width:38px;text-align:center;color:var(--muted);font-size:13px}
+/* TOAST */
+#toasts{position:fixed;bottom:28px;right:28px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:13px 18px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:tin .3s cubic-bezier(.22,1,.36,1);max-width:330px}
+@keyframes tin{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast.s{border-color:rgba(114,245,192,.3)}.toast.e{border-color:rgba(255,100,100,.3)}
+.ti{font-size:16px}
+/* EMPTY / LOADER */
+.empty{text-align:center;padding:80px 24px}
+.eg{font-size:52px;margin-bottom:18px;opacity:.35;animation:gf 4s ease-in-out infinite}
+.ettl{font-family:'Geist',sans-serif;font-size:24px;margin-bottom:8px}
+.edesc{font-size:14px;color:var(--text2);line-height:1.6}
+.loader{display:flex;align-items:center;justify-content:center;padding:80px;gap:10px;color:var(--muted);font-size:14px}
+.spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--a1);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+@media(max-width:1200px){.agrid{grid-template-columns:repeat(2,1fr)}.srow{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{display:none}.main{padding:24px}}
+</style>
+</head>
+<body>
+
+<div class="mesh"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="shell">
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-wm"><div class="logo-gem">🔮</div>AppLens</div>
+    <div class="logo-sub">Shopify Intelligence</div>
+  </div>
+  <nav class="ng">
+    <div class="ng-lbl">Overview</div>
+    <button class="nb on" onclick="go('dashboard',this)"><span class="ni">◈</span>Dashboard</button>
+    <button class="nb" onclick="go('browser',this)"><span class="ni">⊞</span>Browse Apps</button>
+    <button class="nb" onclick="go('scraper',this)"><span class="ni">⟳</span>Run Scraper</button>
+  </nav>
+  <nav class="ng" style="margin-top:8px">
+    <div class="ng-lbl">Categories</div>
+    <button class="nb" onclick="gocat('upsell',this)"><span class="ni">↑</span>Upsell & Bundles<span class="npill" id="np-upsell">0</span></button>
+    <button class="nb" onclick="gocat('sales-channel',this)"><span class="ni">⊕</span>Sales Channel<span class="npill" id="np-sales">0</span></button>
+    <button class="nb" onclick="gocat('email-marketing',this)"><span class="ni">✉</span>Email Marketing<span class="npill" id="np-email">0</span></button>
+    <button class="nb" onclick="gocat('customer-support',this)"><span class="ni">◎</span>Customer Support<span class="npill" id="np-support">0</span></button>
+  </nav>
+  <div class="sb-bot">
+    <button class="tbtn" onclick="toggleTheme()">
+      <span id="ti">☀</span><span id="tl">Light mode</span>
+      <div class="ttrack"><div class="tthumb"></div></div>
+    </button>
+  </div>
+</aside>
+<main class="main">
+  <!-- DASHBOARD -->
+  <section id="pg-dashboard" class="page on">
+    <div class="ph">
+      <div class="pey">Shopify Intelligence</div>
+      <div class="ptitle">App <em>Analytics</em><br>Dashboard</div>
+      <div class="psub">Real-time insights across all scraped Shopify app categories</div>
+    </div>
+    <div class="srow">
+      <div class="sc"><div class="sg">🌐</div><div class="slbl">Total Apps</div><div class="sval" id="st-total">—</div><div class="sdelta">across all categories</div></div>
+      <div class="sc"><div class="sg">↑</div><div class="slbl">Upsell</div><div class="sval" id="st-upsell">—</div><div class="sdelta">apps indexed</div></div>
+      <div class="sc"><div class="sg">✉</div><div class="slbl">Email Marketing</div><div class="sval" id="st-email">—</div><div class="sdelta">apps indexed</div></div>
+      <div class="sc"><div class="sg">◎</div><div class="slbl">Customer Support</div><div class="sval" id="st-support">—</div><div class="sdelta">apps indexed</div></div>
+    </div>
+    <div class="cgrid">
+      <div class="cc" onclick="gocat('upsell')" onmousemove="tm(this,event)">
+        <div class="ctop"><div class="cemoji" style="background:rgba(200,184,255,.1)">🚀</div><span class="cbadge live" id="cb-upsell">loading</span></div>
+        <div class="cname">Upsell & Bundles</div>
+        <div class="cdesc">Post-purchase upsells, product bundles, cross-sells and cart optimisation apps.</div>
+        <div class="cfoot"><div><div class="ccount" id="cc-upsell">—</div><div class="cclbl">apps</div></div><div class="carrow">→</div></div>
+      </div>
+      <div class="cc" onclick="gocat('sales-channel')" onmousemove="tm(this,event)">
+        <div class="ctop"><div class="cemoji" style="background:rgba(255,143,171,.1)">📡</div><span class="cbadge" id="cb-sales">loading</span></div>
+        <div class="cname">Sales Channels</div>
+        <div class="cdesc">Marketplaces, product feeds, point-of-sale and data sync apps.</div>
+        <div class="cfoot"><div><div class="ccount" id="cc-sales">—</div><div class="cclbl">apps</div></div><div class="carrow">→</div></div>
+      </div>
+      <div class="cc" onclick="gocat('email-marketing')" onmousemove="tm(this,event)">
+        <div class="ctop"><div class="cemoji" style="background:rgba(114,245,192,.1)">📧</div><span class="cbadge" id="cb-email">loading</span></div>
+        <div class="cname">Email Marketing</div>
+        <div class="cdesc">Email campaigns, automation flows, newsletters and customer engagement tools.</div>
+        <div class="cfoot"><div><div class="ccount" id="cc-email">—</div><div class="cclbl">apps</div></div><div class="carrow">→</div></div>
+      </div>
+      <div class="cc" onclick="gocat('customer-support')" onmousemove="tm(this,event)">
+        <div class="ctop"><div class="cemoji" style="background:rgba(255,217,125,.1)">🎧</div><span class="cbadge" id="cb-support">loading</span></div>
+        <div class="cname">Customer Support</div>
+        <div class="cdesc">Live chat, helpdesk, FAQs, ticketing and support automation apps.</div>
+        <div class="cfoot"><div><div class="ccount" id="cc-support">—</div><div class="cclbl">apps</div></div><div class="carrow">→</div></div>
+      </div>
+    </div>
+  </section>
+  <!-- BROWSER -->
+  <section id="pg-browser" class="page">
+    <div class="ph">
+      <div class="pey">Explore</div>
+      <div class="ptitle">Browse <em>Apps</em></div>
+      <div class="psub">Search, filter and explore all scraped Shopify apps</div>
+    </div>
+    <div class="tbar">
+      <div class="sw"><span class="si">⌕</span><input id="sinp" type="text" placeholder="Search by name or developer…" oninput="df()"/></div>
+      <select class="sel" id="catf" onchange="df()">
+        <option value="">All Categories</option>
+        <option value="upsell">Upsell & Bundles</option>
+        <option value="sales-channel">Sales Channel</option>
+        <option value="email-marketing">Email Marketing</option>
+        <option value="customer-support">Customer Support</option>
+      </select>
+      <select class="sel" id="sortf" onchange="df()">
+        <option value="rating">↓ Rating</option>
+        <option value="reviews">↓ Reviews</option>
+        <option value="name">A → Z</option>
+      </select>
+    </div>
+    <div id="aout"></div>
+    <div id="pgnav" class="pnav"></div>
+  </section>
+  <!-- SCRAPER -->
+  <section id="pg-scraper" class="page">
+    <div class="ph">
+      <div class="pey">Control</div>
+      <div class="ptitle">Run <em>Scraper</em></div>
+      <div class="psub">Trigger data collection jobs for any category</div>
+    </div>
+    <div class="scgrid">
+      <div class="scc" id="scc-upsell">
+        <div class="stop"><div class="sname"><div class="sdot" id="sd-upsell"></div>Upsell & Bundles</div><button class="btn bpri bsm" id="sb-upsell" onclick="scrape('upsell')">▶ Run</button></div>
+        <div class="slog" id="sl-upsell"><span class="li">// Ready — awaiting trigger</span></div>
+        <div class="surl">POST /scrape/upsell</div>
+      </div>
+      <div class="scc" id="scc-sales">
+        <div class="stop"><div class="sname"><div class="sdot" id="sd-sales"></div>Sales Channel</div><button class="btn bpri bsm" id="sb-sales" onclick="scrape('sales-channel')">▶ Run</button></div>
+        <div class="slog" id="sl-sales"><span class="li">// Ready — awaiting trigger</span></div>
+        <div class="surl">POST /scrape/sales-channel</div>
+      </div>
+      <div class="scc" id="scc-email">
+        <div class="stop"><div class="sname"><div class="sdot" id="sd-email"></div>Email Marketing</div><button class="btn bpri bsm" id="sb-email" onclick="scrape('email-marketing')">▶ Run</button></div>
+        <div class="slog" id="sl-email"><span class="li">// Ready — awaiting trigger</span></div>
+        <div class="surl">POST /scrape/email-marketing</div>
+      </div>
+      <div class="scc" id="scc-support">
+        <div class="stop"><div class="sname"><div class="sdot" id="sd-support"></div>Customer Support</div><button class="btn bpri bsm" id="sb-support" onclick="scrape('customer-support')">▶ Run</button></div>
+        <div class="slog" id="sl-support"><span class="li">// Ready — awaiting trigger</span></div>
+        <div class="surl">POST /scrape/customer-support</div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="cm(event)">
+  <div class="modal">
+    <div class="mhd">
+      <img id="mimg" class="mimg" src="" alt="" onerror="this.style.display='none'"/>
+      <div id="mph" class="mph" style="display:none">🛍</div>
+      <div><div class="mtitle" id="mn">Loading…</div><div class="mby" id="mb">—</div><span class="atag" id="mc">—</span></div>
+      <button class="mx" onclick="cm()">✕</button>
+    </div>
+    <div class="mbd">
+      <div class="msec">
+        <div class="mslbl">Rating Overview</div>
+        <div class="rhero"><div class="rnum" id="mr">—</div><div><div class="rsr" id="msr"></div><div class="rrev" id="mrc">— reviews</div></div></div>
+        <div class="dlist" id="mdist"></div>
+      </div>
+      <div class="msec"><div class="mslbl">About</div><div class="mdesc" id="mdesc">—</div></div>
+      <a id="mlink" href="#" target="_blank" class="btn bpri bsm" style="text-decoration:none">↗ View on Shopify</a>
+    </div>
+  </div>
+</div>
+<div id="toasts"></div>
+<script>
+const API='http://127.0.0.1:8000';
+let allApps=[],curPage=1;
+const PER=12;
+// THEME
+function tm(el,e){const r=el.getBoundingClientRect();el.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');el.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')}
+// THEME
+function toggleTheme(){const d=document.documentElement,dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'light':'dark');document.getElementById('ti').textContent=dark?'☾':'☀';document.getElementById('tl').textContent=dark?'Dark mode':'Light mode'}
+// NAV
+function go(p,btn){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  if(btn){document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));btn.classList.add('on')}
+  if(p==='dashboard')loadStats();
+  if(p==='browser')loadApps();
+}
+function gocat(cat,btn){go('browser',btn);document.getElementById('catf').value=cat;df()}
+// STATS
+async function loadStats(){
+  try{
+    const r=await fetch(`${API}/stats`),d=await r.json();
+    ac('st-total',d.total_apps_all_categories);
+    const m={};d.by_category.forEach(c=>m[c.category]=c.total_apps);
+    ac('st-upsell',m['upsell']||0);ac('st-email',m['email-marketing']||0);ac('st-support',m['customer-support']||0);
+    [['upsell','upsell'],['sales-channel','sales'],['email-marketing','email'],['customer-support','support']].forEach(([c,k])=>{
+      const n=m[c]||0;
+      const cb=document.getElementById('cb-'+k),cc=document.getElementById('cc-'+k);
+      const np=document.getElementById('np-'+k);
+      if(cc)cc.textContent=n;if(np)np.textContent=n;
+      if(cb){cb.textContent=n>0?n+' apps':'Not scraped';if(n>0)cb.classList.add('live')}
+    });
+  }catch(e){toast('Cannot reach API. Is the server running?','e')}
+}
+function ac(id,target){
+  const el=document.getElementById(id);if(!el)return;
+  let v=0;const step=Math.max(1,Math.ceil(target/40));
+  const iv=setInterval(()=>{v=Math.min(v+step,target);el.textContent=v;if(v>=target)clearInterval(iv)},25);
+}
+// APPS
+async function loadApps(){
+  document.getElementById('aout').innerHTML='<div class="loader"><div class="spin"></div> Loading apps…</div>';
+  try{const r=await fetch(`${API}/apps?limit=500`),d=await r.json();allApps=d.apps||[];df()}
+  catch(e){document.getElementById('aout').innerHTML=`<div class="empty"><div class="eg">⚡</div><div class="ettl">Cannot reach API</div><div class="edesc">Start your FastAPI server at ${API}</div></div>`}
+}
+function df(){
+  const q=document.getElementById('sinp').value.toLowerCase();
+  const c=document.getElementById('catf').value;
+  const s=document.getElementById('sortf').value;
+  let f=allApps.filter(a=>(!q||(a.name||'').toLowerCase().includes(q)||(a.developer||'').toLowerCase().includes(q))&&(!c||a.category===c));
+  if(s==='rating')f.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  else if(s==='reviews')f.sort((a,b)=>(b.review_count||0)-(a.review_count||0));
+  else f.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  curPage=1;ra(f);
+}
+function ra(apps){
+  const out=document.getElementById('aout'),nav=document.getElementById('pgnav');
+  if(!apps.length){out.innerHTML=`<div class="empty"><div class="eg">🔍</div><div class="ettl">No apps found</div><div class="edesc">Try a different query or run the scraper first.</div></div>`;nav.innerHTML='';return}
+  const tot=apps.length,pages=Math.ceil(tot/PER),s=(curPage-1)*PER,slice=apps.slice(s,s+PER);
+  out.innerHTML=`<div class="agrid">${slice.map((a,i)=>`<div class="acard" style="animation-delay:${i*.04}s" onclick="om(${a.id})"><div class="atop">${a.icon_url?`<img class="aimg" src="${a.icon_url}" alt="" onerror="this.outerHTML='<div class=\\'aph\\'>🛍</div>'">`:`<div class="aph">🛍</div>`}<div><div class="aname">${a.name||'—'}</div><div class="aby">${a.developer||'—'}</div></div></div><div class="abot"><div class="ast"><span class="s">★</span>${a.rating??'—'}<span class="arc">(${(a.review_count||0).toLocaleString()})</span></div><span class="atag">${a.category}</span></div></div>`).join('')}</div>`;
+  if(pages<=1){nav.innerHTML='';nav._apps=apps;return}
+  let h=`<button class="pbtn" onclick="gp(${curPage-1})" ${curPage===1?'disabled':''}>‹</button>`;
+  for(let i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-curPage)<=1)h+=`<button class="pbtn ${i===curPage?'cur':''}" onclick="gp(${i})">${i}</button>`;else if(Math.abs(i-curPage)===2)h+=`<span class="psep">…</span>`}
+  h+=`<button class="pbtn" onclick="gp(${curPage+1})" ${curPage===pages?'disabled':''}>›</button>`;
+  nav.innerHTML=h;nav._apps=apps;
+}
+function gp(p){const nav=document.getElementById('pgnav');curPage=p;ra(nav._apps);document.querySelector('.main').scrollTo({top:0,behavior:'smooth'})}
+// MODAL
+async function om(id){
+  document.getElementById('ov').classList.add('open');
+  document.getElementById('mn').textContent='Loading…';
+  document.getElementById('mdist').innerHTML='<div class="loader" style="padding:20px"><div class="spin"></div></div>';
+  try{
+    const r=await fetch(`${API}/apps/${id}`),a=await r.json();
+    const mi=document.getElementById('mimg'),mph=document.getElementById('mph');
+    if(a.icon_url){mi.src=a.icon_url;mi.style.display='block';mph.style.display='none'}else{mi.style.display='none';mph.style.display='flex'}
+    document.getElementById('mn').textContent=a.name||'—';
+    document.getElementById('mb').textContent=a.developer||'—';
+    document.getElementById('mc').textContent=a.category||'—';
+    document.getElementById('mr').textContent=a.rating??'—';
+    document.getElementById('mrc').textContent=(a.review_count||0).toLocaleString()+' reviews';
+    document.getElementById('mdesc').textContent=a.description||'No description available.';
+    document.getElementById('mlink').href=a.app_url||'#';
+    const stars=Math.round(a.rating||0);
+    document.getElementById('msr').innerHTML=Array.from({length:5},(_,i)=>`<span class="s ${i>=stars?'off':''}">★</span>`).join('');
+    const dist=a.rating_distribution||[];
+    if(!dist.length){document.getElementById('mdist').innerHTML='<div style="font-size:13px;color:var(--muted)">No distribution data.</div>'}
+    else{
+      document.getElementById('mdist').innerHTML=dist.map(d=>`<div class="drow"><div class="dlbl">${d.star} ★</div><div class="dtrack"><div class="dfill" data-pct="${d.percentage||0}"></div></div><div class="dct">${(d.count||0).toLocaleString()}</div></div>`).join('');
+      requestAnimationFrame(()=>{document.querySelectorAll('.dfill').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.pct+'%'},50)})});
+    }
+  }catch(e){document.getElementById('mn').textContent='Error loading app'}
+}
+function cm(e){if(!e||e.target===document.getElementById('ov'))document.getElementById('ov').classList.remove('open')}
+// SCRAPER
+const SM={
+  'upsell':{card:'scc-upsell',dot:'sd-upsell',log:'sl-upsell',btn:'sb-upsell',ep:'/scrape/upsell'},
+  'sales-channel':{card:'scc-sales',dot:'sd-sales',log:'sl-sales',btn:'sb-sales',ep:'/scrape/sales-channel'},
+  'email-marketing':{card:'scc-email',dot:'sd-email',log:'sl-email',btn:'sb-email',ep:'/scrape/email-marketing'},
+  'customer-support':{card:'scc-support',dot:'sd-support',log:'sl-support',btn:'sb-support',ep:'/scrape/customer-support'},
+};
+async function scrape(cat){
+  const m=SM[cat];
+  const card=document.getElementById(m.card),dot=document.getElementById(m.dot),log=document.getElementById(m.log),btn=document.getElementById(m.btn);
+  card.className='scc running';dot.className='sdot running';btn.disabled=true;
+  const add=(msg,cls='')=>{log.innerHTML+=`<span class="${cls}">${msg}</span>\n`;log.scrollTop=log.scrollHeight};
+  log.innerHTML='';add(`// Initiating [${cat}]…`,'li');add(`// POST ${API}${m.ep}`,'li');
+  try{
+    const r=await fetch(`${API}${m.ep}`,{method:'POST'}),d=await r.json();
+    if(r.ok){card.className='scc done';dot.className='sdot done';add('// ✓ Completed successfully','ls');add(`// ${d.message}`,'ls');toast(`${cat} scraped!`,'s');loadStats()}
+    else throw new Error(d.detail||'Unknown error');
+  }catch(e){card.className='scc err';dot.className='sdot err';add(`// ✗ ${e.message}`,'le');toast(`Error: ${e.message}`,'e')}
+  finally{btn.disabled=false}
+}
+// TOAST
+function toast(msg,t=''){
+  const c=document.getElementById('toasts'),el=document.createElement('div');
+  el.className=`toast ${t}`;el.innerHTML=`<span class="ti">${t==='s'?'✓':t==='e'?'✗':'ℹ'}</span>${msg}`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .3s';setTimeout(()=>el.remove(),300)},4000);
+}
+loadStats();
+</script>
+</body>
+</html>

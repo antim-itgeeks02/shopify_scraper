@@ -1,0 +1,36 @@
+shopify-scraper/
+│
+├── pyproject.toml                  # Poetry config + all dependencies
+├── alembic.ini                     # Alembic migration config
+├── .env                            # DB credentials etc.
+├── README.md
+│
+├── alembic/
+│   ├── env.py
+│   └── versions/                   # Auto-generated migration files
+│
+└── app/
+    ├── __init__.py
+    │
+    ├── core/
+    │   ├── __init__.py
+    │   ├── config.py               # Settings via pydantic BaseSettings
+    │   └── database.py             # SQLAlchemy engine + session
+    │
+    ├── models/
+    │   ├── __init__.py
+    │   └── app_listing.py          # SQLAlchemy ORM model
+    │
+    ├── schemas/
+    │   ├── __init__.py
+    │   └── app_listing.py          # Pydantic schema for validation
+    │
+    ├── scraper/
+    │   ├── __init__.py
+    │   ├── crawler.py              # Pagination crawler (finds all app URLs)
+    │   ├── parser.py               # BeautifulSoup parser (extracts fields)
+    │   └── pipeline.py             # Orchestrates crawl → parse → save
+    │
+    └── api/
+        ├── __init__.py
+        └── main.py                 # FastAPI app entry point (trigger scraper)
